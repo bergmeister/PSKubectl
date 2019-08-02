@@ -5,16 +5,23 @@ param(
     [switch] $NoRestore
 )
 
-try {
+try
+{
     Push-Location "$PSScriptRoot/src"
     $options = @()
-    if ($NoRestore) {
+    if ($NoRestore)
+    {
         $options += '--no-restore'
     }
-    dotnet publish -o ../PSKubectl/Assemblies -c $Configuration @options
-    if ($LASTEXITCODE -ne 0) {
+    dotnet publish --configuration $Configuration @options
+    Copy-Item -Path ([IO.Path]::Combine($PWD, 'bin', 'netstandard2.0', 'publish'))`
+        -Destination ([IO.Path]::Combine($PWD, '..', 'PSKubectl', 'Assemblies')) -Recurse -Exclude Microsoft.*
+    if ($LASTEXITCODE -ne 0)
+    {
         throw "Build failed"
     }
-} finally {
+}
+finally
+{
     Pop-Location
 }
